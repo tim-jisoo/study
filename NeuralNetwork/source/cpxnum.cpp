@@ -32,7 +32,6 @@ int read_arg_file(char** argv, CBackProp** bp, TrainDriver** td)
 	fprintf(stdout, "\nbeta: %lf\n", beta);
 
 	*bp = new CBackProp(numLayers, lSz, beta);	
-	free(lSz);
 	fclose(fp1);
 
 	//step2: allocate training manager
@@ -97,16 +96,16 @@ int main(int argc, char* argv[])
 	fprintf(stdout,"\nNow training the network...\nPress any key\n");	
 	getchar();
 
-	if(!(td->training(bp)))
-		fprintf(stdout, "success of weight convergence\n");
-	else
-		fprintf(stdout, "failure of weight convergence\n");
+	if(!(td->training(bp))) fprintf(stdout, "success of weight convergence\n");
+	else fprintf(stdout, "failure of weight convergence\n");
 
 	fprintf(stdout, "\nNow using the trained network\nmake predictions on test data...\n");
 	getchar();
 
 	td->test(bp);
 
+	delete bp;
+	delete td;
 	return 0;
 }
 

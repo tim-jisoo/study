@@ -51,9 +51,6 @@ public:
 //	initializes and allocates memory
 	CBackProp(int nl,int *sz,double b);
 
-//  copy counstructor
-	CBackProp(const CBackProp&);
-
 //	backpropogates error for one set of input
 	int bpgt(double *in, double *tgt, int batch);
 

@@ -1,14 +1,9 @@
 #include "BackProp.hpp"
 
 //	initializes and allocates memory on heap
-CBackProp::CBackProp(int nl,int *sz,double b) :numl(nl), beta(b), nBpgt(0)
+CBackProp::CBackProp(int nl,int *sz,double b) :numl(nl), lsize(sz), beta(b), nBpgt(0)
 {
 	int i;
-	//	set no of layers and their sizes
-	lsize=new int[numl];
-	for(i=0;i<numl;i++){
-		lsize[i]=sz[i];
-	}
 
 	//	allocate memory for output of each neuron
 	out = new double*[numl];
@@ -60,78 +55,6 @@ CBackProp::CBackProp(int nl,int *sz,double b) :numl(nl), beta(b), nBpgt(0)
 		for(int j=0;j<lsize[i];j++)
 			for(int k=0;k<lsize[i-1]+1;k++)
 				prevDwt[i][j][k]=(double)0.0;
-}
-
-CBackProp::CBackProp(const CBackProp& copy)
-:numl(copy.numl), beta(copy.beta), nBpgt(copy.nBpgt)
-{
-	int i,j;
-
-	//	set no of layers and their sizes
-	lsize=new int[numl];
-	for(i=0;i<numl;i++) lsize[i]=copy.lsize[i];
-	
-	//	allocate memory for output of each neuron
-	out = new double*[numl];
-	for( i=0;i<numl;i++)
-		out[i]=new double[lsize[i]];
-	for(i=0;i<numl;i++)
-	{
-		for(j = 0; j < lsize[j]; j++)
-			out[i][j] = copy.out[i][j];
-	}
-
-	//	allocate memory for delta
-	delta = new double*[numl];
-	for(i=1;i<numl;i++)
-		delta[i]=new double[lsize[i]];
-
-	for(i=1;i<numl;i++)
-	{
-		for(j=0 ; j<lsize[j] ; j++)
-		{
-			delta[i][j] = copy.delta[i][j];
-		}
-	}
-	
-	//	allocate memory for weights
-	weight = new double**[numl];
-	for(i=1;i<numl;i++)
-		weight[i]=new double*[lsize[i]];
-	for(i=1;i<numl;i++)
-	{
-		for(int j=0;j<lsize[i];j++)
-			weight[i][j]=new double[lsize[i-1]+1];
-	}
-
-	//	seed and assign random weights
-	for(i=1;i<numl;i++)
-	{
-		for(int j=0;j<lsize[i];j++)
-		{
-			for(int k=0;k<lsize[i-1]+1;k++)
-				weight[i][j][k]=copy.weight[i][j][k];
-		}
-	}
-
-	//	allocate memory for previous weights
-	prevDwt = new double**[numl];
-	for(i=1;i<numl;i++) prevDwt[i]=new double*[lsize[i]];
-	for(i=1;i<numl;i++)
-	{
-		for(int j=0;j<lsize[i];j++)
-			prevDwt[i][j]=new double[lsize[i-1]+1];
-	}
-
-	//	initialize previous weights to 0 for first iteration
-	for(i=1;i<numl;i++)
-	{
-		for(int j=0;j<lsize[i];j++)
-		{
-			for(int k=0;k<lsize[i-1]+1;k++)
-				prevDwt[i][j][k]=copy.prevDwt[i][j][k];
-		}
-	}
 }
 
 CBackProp::~CBackProp()

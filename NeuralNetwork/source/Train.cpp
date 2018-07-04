@@ -1,7 +1,8 @@
 #include "Train.hpp"
 
 
-TrainDriver::TrainDriver(char* str, int sample, int train, int test, int batch, int cvg, double th) :nSample(sample), limTrain(train), limTest(test), nBatch(batch), nCvg(cvg), thresh(th)
+TrainDriver::TrainDriver(char* str, int sample, int train, int test, int batch, int cvg, double th)
+:nSample(sample), limTrain(train), limTest(test), nBatch(batch), nCvg(cvg), thresh(th)
 {
 		int i, j;
 
