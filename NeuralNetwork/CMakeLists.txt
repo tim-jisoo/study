@@ -1,0 +1,10 @@
+CMAKE_MINIMUM_REQUIRED( VERSION 2.8 )
+PROJECT( MNIST )
+find_package( OpenCV REQUIRED )
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+SET(CMAKE_VERBOSE_MAKEFILE true)
+SET(CMAKE_BUILD_TYPE Debug)
+SET(CMAKE_C_FLAGS_RELEASE "-Wall")
+ADD_EXECUTABLE(./exe/a.out ./source/BackProp.cpp ./source/Train.cpp ./source/cpxnum.cpp)
+target_link_libraries(./exe/a.out ${OpenCV_LIBS} )
+

@@ -1,0 +1,15 @@
+./DB/number_distortion/
+1000
+2000000
+20
+5
+3
+0.0005
+
+"path for DB
+"number of sample
+"maximum training iteration
+"test iteration
+"batch size
+"iteration for convergence test
+
