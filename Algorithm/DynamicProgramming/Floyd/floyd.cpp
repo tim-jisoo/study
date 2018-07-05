@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
 
 	if(argc != 2)
 	{
-		cerr << "usage : prg graph" << endl;
+		cerr << "usage : prg input" << endl;
 		exit(-1);
 	}
 
