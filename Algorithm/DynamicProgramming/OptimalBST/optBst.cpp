@@ -55,17 +55,12 @@ public:
 	bool search(char* k)
 	{
 		int ret;
-		bool found = false;
 		Node* it = this->root;
 		
 		while(it)
 		{
-			if(!(ret = strcmp(it->key, k)))
-			{
-				found = true;
+			if(!(ret = strcmp(it->key, k))) 
 				break;
-			}
-
 			else if(ret < 0)
 				it = it->right;
 			else
@@ -88,10 +83,13 @@ struct Token
 	char  key[10];
 	float poss;
 
+	Token() {}
+	/*
 	Token(): poss(0.0f)
 	{ 
 		memset(this->key, 0x00, sizeof(this->key));
 	}
+	*/
 	Token(char* k, float p):poss(p)
 	{
 		memset(this->key, 0x00, sizeof(this->key));
@@ -102,10 +100,10 @@ struct Token
 class Tree_Optimizer
 {
 private:
-	int		n;
-	int		**R;
-	float	**A;
-	Token	*t;
+	int		n;		//# of input.
+	int		**R;	//Array for tree construction.
+	float	**A;	//Array for dynamic programming.
+	Token	*t;		//Array for input sequence.
 
 	void sort()
 	{
@@ -150,12 +148,13 @@ public:
 		int i,j;
 		cout << endl << "[constructor] from class(Tree_Optimizer) called..." << endl;
 
-		//memory allocation for dynamic programming.
-		//also doing initiation for memory.
+		//I do not use the memory of idx-0. Instead, use idx from 1 to n(input#). 
+		//The idx-(n+1) is neccessary for dynamic programming.
 		this->A = new float*[this->n+2];
 		this->R = new int*[this->n+2];
 		for(i = 1; i <= this->n + 1 ; i++)
 		{
+			//Likewise, i use idx from 1 to n rather than 0 to (n-1).
 			this->A[i] = new float[this->n+1];
 			this->A[i][i-1] = 0.0f;
 			
@@ -199,12 +198,15 @@ public:
 			this->R[i][i] = i;
 		}
 
+		//at first, diagonal
 		for(l=1; l<=this->n-1; l++)
 		{
+			//at second, row and column.
 			for(i = 1; i <= this->n-l; i++)
 			{
 				j = i + l;
 				
+				//at third, all possible case.
 				for(minima = FLT_MAX, k = i; k <= j; k++)
 				{
 					comp = this->A[i][k-1] + this->A[k+1][j];
