@@ -4,9 +4,11 @@
 #include <cmath>
 #include <stdio.h>
 
-#define MYINFINITY				0x3FFFFFFF
+//s : expression of set (example : 3(decimal) == 11(binary), 2^1 means v3 and 2^0 means v2.
+//v : number of vertex
 #define INSET(s,v)				(s&(1<<(v-2)))
 #define SET_DIFFERENCE(s,v)		(s&(~(1<<(v-2))))
+#define MYINFINITY				0x3FFFFFFF
 
 using namespace std;
 
@@ -15,7 +17,6 @@ struct Node
 	int   data;
 	Node* ptr;
 
-	//Node(): ptr(NULL) {}
 	Node(int d) : data(d), ptr(NULL) {}
 };
 
@@ -29,6 +30,7 @@ struct HashTable
 	{
 		cout << endl << "hash table created" << endl;
 
+		//don't care the v1 node.
 		this->tsize = (1 << (this->nNode-1));
 		this->table = new Node*[this->tsize];
 		this->mktable();
@@ -36,10 +38,10 @@ struct HashTable
 
 	~HashTable()
 	{
-		cout << endl << "hash table eleminated" << endl;
-
 		Node* temp;
-
+		
+		cout << endl << "hash table eleminated" << endl;
+		
 		for(int i = 0; i < this->tsize; i++)
 		{
 			while(this->table[i])
@@ -53,13 +55,13 @@ struct HashTable
 		if(this->table) delete this->table;
 	}
 
-	//input : integer number
-	//output : number of bit1.
+	//input : integer number or expression of set.
+	//output : number of bit which value is 1.
 	int hash_func(int idx)
 	{
 		int cnt = 0;
-		
-		//number of bits equals to number of nodes (nNode).	
+	
+		//LSB means the v2 node.
 		for(int i = 2; i <= this->nNode; i++)
 			if(INSET(idx,i)) cnt++;
 		
@@ -93,9 +95,19 @@ struct HashTable
 class Graph
 {
 private:
-	int n;		//number of vertex
-	int** W;	//weight matrix
-	int** D;	//array for DP
+	int n;		//number of vertex.
+	int** W;	//weight matrix.
+	int** D;	//array for DP.
+	int** P;	//array for path.
+
+	void foo(int start, int set)
+	{
+		int next = this->P[start][set];
+		int subset = SET_DIFFERENCE(set, next);
+		
+		cout << next << " ";
+		if(subset) foo(next, subset);
+	}
 
 public:
 
@@ -103,25 +115,30 @@ public:
 	{
 		cout << endl << "constructor called" << endl;
 		this->D = new int*[this->n+1];
-		memset(this->D, 0x00, sizeof(int*) * (this->n+1));
-		for(int i=2; i <= this->n; i++)
+		this->P = new int*[this->n+1];
+		
+		memset(this->D, 0x00, sizeof(int*) * (this->n+1)); //necessary for destructor
+		for(int i=1; i <= this->n; i++)
 		{
 			D[i] = new int[1<<(this->n-1)];
+			P[i] = new int[1<<(this->n-1)];
 		}
 	}
 	
 	~Graph()
 	{
-		cout << endl << "destructor called ..." << endl;
+		cout << endl << "destructor called" << endl;
 
 		for(int i = 1; i <= this->n; i++)
 		{
 			if(this->W[i]) delete this->W[i];
 			if(this->D[i]) delete this->D[i];
+			if(this->P[i]) delete this->P[i];
 		}
 
 		if(this->W) delete this->W;
 		if(this->D) delete this->D;
+		if(this->P) delete this->P;
 	}
 
 	int travel()
@@ -134,12 +151,12 @@ public:
 		Node* iter;
 		HashTable hash(this->n);
 
-		//case : no any intermidiate node. (k == 0)
+		//[case1] : no any intermidiate node. (k == 0)
 		//The 0 of the D[i][0] means the empty set.
 		for(i = 2; i <= this->n; i++)
 			this->D[i][0] = W[i][1];
 
-		//case : at least, there is one intermediate node.
+		//[case2] : at least, there is one intermediate node. except the case of (k == n-1).
 		//loop for # of nodes in the set.
 		for(k = 1; k <= this->n-2; k++)
 		{
@@ -160,6 +177,7 @@ public:
 						if((val = this->W[i][j] + this->D[j][SET_DIFFERENCE(iter->data, j)]) < min)
 						{
 							min = val;
+							this->P[i][iter->data] = j;
 						}
 					}
 					this->D[i][iter->data] = min;
@@ -168,18 +186,34 @@ public:
 			}
 		}
 
-		//case : there are n-1 nodes to be passed by. (k == n-1)
-		for(fullset = 0, i=0; i<= this->n-2; i++)
-			fullset |= (1<<i);
+		//[case3] : there are n-1 nodes to be passed by. (k == n-1)
+		//loop for building the set with case of (k == n-1).
+		for(fullset = 0, i=2; i <= this->n; i++)
+			fullset |= (1<<(i-2));
 
-		for(min = MYINFINITY, j = 2; j<= this->n; j++)
+		for(min = MYINFINITY, i = 2; i<= this->n; i++)
 		{
-			if((val = this->W[1][j] + this->D[j][SET_DIFFERENCE(fullset, j)]) < min)
-				min = val;
+			//the variable 'min' corresponds to D[1][V-{v1}]
+			if((val = this->W[1][i] + this->D[i][SET_DIFFERENCE(fullset, i)]) < min)
+			{
+				this->D[1][fullset] = val;
+				this->P[1][fullset] = i;
+			}
 		}
 
-		//min : D[1][V-{v1}]
-		return min;
+		return this->D[1][fullset];
+	}
+
+	void shortest_path()
+	{
+		int i, fullset = 0;	
+		
+		for(i=2; i <= this->n; i++)
+			fullset |= (1<<(i-2));
+	
+		cout << endl <<  "PATH: 1 ";
+		foo(1,fullset);
+		cout << "1 " << endl;
 	}
 };
 
@@ -214,15 +248,15 @@ int read_arg_file(char** argv, Graph** grp)
 		memset(line, 0x00, sizeof(line));
 		fgets(line, sizeof(line), fp);
 		line[strlen(line)-1] = '\0';
-		cout << "[" << i << "] ";
 		ptr = strtok(line, " ");
+		fprintf(stdout, "[%d] ", i);
 		while(ptr != NULL)
 		{
 			len = strlen(ptr);
 			for(j=0; j<len; j++) if(ptr[j] == ':') { ptr[j] = '\0'; break; }
 			W[i][idx=atoi(ptr)] = (val = atoi(ptr+j+1));
-			cout << idx << ':' << val << ' ';
 			ptr = strtok(NULL, " ");
+			fprintf(stdout, "%d:%d ", idx, val);
 		}
 		cout << endl;
 	}
@@ -253,9 +287,11 @@ int main(int argc, char* argv[])
 
 	minlength = grp->travel();
 
-	delete grp;
+	grp->shortest_path();
 
 	cout << "minimal length is : " << minlength << endl;
+	
+	delete grp;
 	
 	return 0;
 }
