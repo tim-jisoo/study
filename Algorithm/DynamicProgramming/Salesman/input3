@@ -1,0 +1,13 @@
+4
+2:10 3:15 4:20
+1:5 3:9 4:10
+1:6 2:13 4:12
+1:8 2:8 3:9
+
+"[1] num of node 
+"[2...n] discription of connection
+"Second line for node-1, Third line for node-2
+"(left):(right)
+"left >> connected node
+"right >> distance
+"solution: 35

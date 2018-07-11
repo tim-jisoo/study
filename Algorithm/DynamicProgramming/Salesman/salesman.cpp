@@ -109,6 +109,22 @@ private:
 		if(subset) foo(next, subset);
 	}
 
+	void print_calcVal(int node, int set)
+	{
+		int val = this->D[node][set];
+		fprintf(stdout, "D[v%d][{ ", node);
+		for(int i = 2; i <= this->n; i++)
+		{
+			if(INSET(set, i))
+				fprintf(stdout, "v%d ", i);
+		}
+		fprintf(stdout, "}] = ");
+
+		if(val != MYINFINITY)
+			fprintf(stdout, "%d\n", val);
+		else
+			fprintf(stdout, "Inf\n");
+	}
 public:
 
 	Graph(int _n, int** _W):n(_n), W(_W)
@@ -153,7 +169,11 @@ public:
 		//[case1] : no any intermidiate node. (k == 0)
 		//The 0 of the D[i][0] means the empty set.
 		for(i = 2; i <= this->n; i++)
+		{
 			this->D[i][0] = W[i][1];
+			this->print_calcVal(i, 0);
+		}
+		cout << endl;
 
 		//[case2] : at least, there is one intermediate node. except the case of (k == n-1).
 		//loop for # of nodes in the set.
@@ -180,9 +200,11 @@ public:
 						}
 					}
 					this->D[i][iter->data] = min;
+					this->print_calcVal(i, iter->data);
 				}
 				iter = iter->ptr;
 			}
+			cout << endl;
 		}
 
 		//[case3] : there are n-1 nodes to be passed by. (k == n-1)
@@ -195,11 +217,12 @@ public:
 			//the variable 'min' corresponds to D[1][V-{v1}]
 			if((val = this->W[1][i] + this->D[i][SET_DIFFERENCE(fullset, i)]) < min)
 			{
-				this->D[1][fullset] = val;
+				min = val;
 				this->P[1][fullset] = i;
 			}
 		}
-
+		this->D[1][fullset] = min;
+		this->print_calcVal(1, fullset);
 		return this->D[1][fullset];
 	}
 
