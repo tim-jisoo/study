@@ -84,12 +84,7 @@ struct Token
 	float poss;
 
 	Token() {}
-	/*
-	Token(): poss(0.0f)
-	{ 
-		memset(this->key, 0x00, sizeof(this->key));
-	}
-	*/
+	
 	Token(char* k, float p):poss(p)
 	{
 		memset(this->key, 0x00, sizeof(this->key));
