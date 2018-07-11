@@ -117,7 +117,6 @@ public:
 		this->D = new int*[this->n+1];
 		this->P = new int*[this->n+1];
 		
-		memset(this->D, 0x00, sizeof(int*) * (this->n+1)); //necessary for destructor
 		for(int i=1; i <= this->n; i++)
 		{
 			D[i] = new int[1<<(this->n-1)];
